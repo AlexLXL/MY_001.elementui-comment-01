@@ -1,0 +1,28 @@
+{
+  // 详见: https://eslint.bootcss.com/docs/user-guide/configuring、https://www.cnblogs.com/liujinyu/p/9391551.html
+  // 执行代码时脚步需要访问的额外全局变量。
+  "globals": {
+    "ga": true, // 允许修改
+    "chrome": true
+  },
+  // 插件 是一个 npm 包，通常输出规则。
+  // eslint-plugin-html-此插件用来识别.html 和 .vue文件中的js代码、eslint-plugin-json   (可以省略包名的前缀 eslint-config-)
+  // eslint-config-elemefe   (可以省略包名的前缀 eslint-config-) 继承它前面的配置
+  "plugins": ["html", "json"],
+  "extends": "elemefe",
+  // "off" 或 0 - 关闭规则
+  // "warn" 或 1 - 开启规则，使用警告级别的错误：warn (不会导致程序退出),
+  // "error" 或 2 - 开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)
+  "rules": {
+    "no-restricted-globals": ["error", "event", "fdescribe"] // 禁用特定的全局变量
+  },
+  // JavaScript 语言选项
+  "parserOptions": {
+    // ECMAScript 版本
+    "ecmaVersion": 6,
+    //想使用的额外的语言特性:
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  }
+}

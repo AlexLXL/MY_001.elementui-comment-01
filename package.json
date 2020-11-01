@@ -1,0 +1,211 @@
+{
+  "name": "element-ui",
+  "version": "2.12.0",
+  "description": "A Component Library for Vue.js.",
+  "main": "lib/element-ui.common.js",
+  "files": [
+    "lib",
+    "src",
+    "packages",
+    "types"
+  ],
+  "typings": "types/index.d.ts",
+  "scripts": {
+    "bootstrap": "yarn || npm i",
+    "clean": "rimraf lib && rimraf packages/*/lib && rimraf test/**/coverage",
+    "build:file": "node build/bin/iconInit.js & node build/bin/build-entry.js & node build/bin/i18n.js & node build/bin/version.js",
+    "lint": "eslint src/**/* test/**/* packages/**/* build/**/* --quiet",
+    "build:utils": "cross-env BABEL_ENV=utils babel src --out-dir lib --ignore src/index.js",
+    "build:umd": "node build/bin/build-locale.js",
+    "build:theme": "node build/bin/gen-cssfile && gulp build --gulpfile packages/theme-chalk/gulpfile.js && cp-cli packages/theme-chalk/lib lib/theme-chalk",
+    "i18n": "node build/bin/i18n.js",
+    "deploy:build": "npm run build:file && cross-env NODE_ENV=production webpack --config build/webpack.demo.js && echo element.eleme.io>>examples/element-ui/CNAME",
+    "deploy:extension": "cross-env NODE_ENV=production webpack --config build/webpack.extension.js",
+    "dev:extension": "rimraf examples/extension/dist && cross-env NODE_ENV=development webpack --watch --config build/webpack.extension.js",
+    "dev:play": "npm run build:file && cross-env NODE_ENV=development PLAY_ENV=true webpack-dev-server --config build/webpack.demo.js",
+    "test:watch": "npm run build:theme && cross-env BABEL_ENV=test karma start test/unit/karma.conf.js",
+    "dist": "npm run clean && npm run build:file && npm run lint && webpack --config build/webpack.conf.js && webpack --config build/webpack.common.js && webpack --config build/webpack.component.js && npm run build:utils && npm run build:umd && npm run build:theme",
+    "pub": "npm run bootstrap && sh build/git-release.sh && sh build/release.sh && node build/bin/gen-indices.js && sh build/deploy-faas.sh",
+    "dev": "npm run bootstrap && npm run build:file && cross-env NODE_ENV=development webpack-dev-server --config build/webpack.demo.js & node build/bin/template.js",
+    "test": "npm run lint && npm run build:theme && cross-env CI_ENV=/dev/ BABEL_ENV=test karma start test/unit/karma.conf.js --single-run"
+  },
+  "my-Annotate": [
+    {
+      "files": "外发布的内容有[\"lib\", \"src\", \"packages\", \"types\"], 其中lib是运行打包命令后生成的目录",
+      "scripts": {
+        "dist": {
+          "clean": {
+            "des": "删除文件, rimraf等效封装rm -rf /dist/的插件。 /* 是拦截所有的文件夹，不包含子文件夹、/** 是拦截所有的文件夹及里面的子文件夹",
+            "rimraf lib": "webpack --config build/webpack.component.js生成的",
+            "rimraf packages/*/lib": "删除样式theme-chalk里的lib ===",
+            "rimraf test/**/coverage": "===待加注释"
+          },
+          "build:file": {
+            "node build/bin/iconInit.js": "将.el-icon-delete的delete抽取到一个json文件",
+            "node build/bin/build-entry.js": "★利用模板引擎的方式构建index.js文件",
+            "node build/bin/i18n.js": "构建语言文件，国际化",
+            "node build/bin/version.js": "构建examples的版本文件"
+          },
+          "npm run lint": "利用eslint，根据.eslintrc和.eslintignore文件，检测代码规范",
+          "webpack --config build/webpack.conf.js": "对src/index.js打包，以umd形式输出到lib/index.js",
+          "webpack --config build/webpack.common.js": "对src/index.js打包，以commonjs2形式输出到lib/element-ui.common.js   ★commonjs和commonjs2的区别: https://www.jianshu.com/p/f4c7640a629a",
+          "webpack --config build/webpack.component.js": "对packages下的组件(等同components.json)打包，以commonjs2形式分别输出到lib目录，[★按需引入]",
+          "npm run build:utils": {
+            "作用": "babel处理src的文件，并复制一份到lib",
+            "cross-env BABEL_ENV=utils": "cross-env是为了兼容各平台命令，防止出现阻塞、异常、报错问题，等效于cmd: set BABEL_ENV=utils，设置 ‘环境变量BABEL_ENV’ = utils（.babelrc文件中env 选项的值将从 process.env.BABEL_ENV 获取(process是node的全局属性)，如果没有的话，则获取 process.env.NODE_ENV 的值，它也无法获取时会设置为 'development' ）",
+            "babel src --out-dir lib --ignore src/index.js": "用Babel处理src下的directive自定义指令、locale国际化、mixins组件用的混合文件、transitions动画和utils工具函数，并输出到lib目录"
+          },
+          "npm run build:umd": {
+            "作用": "国际化umd版本",
+            "具体操作": "对src/locale/lang下的文件打包，生成umd格式文件，保存在lib/umd/locale"
+          },
+          "npm run build:theme": {
+            "作用": "对packages/theme-chalk下的文件进行打包，===待加注释",
+            "node build/bin/gen-cssfile": "构建packages/theme-chalk/src/index.scss，生成入口文件",
+            "gulp build --gulpfile packages/theme-chalk/gulpfile.js": "gulp是一种基于流的打包方式，iviewUI和elementUI等UI库都是采用gulp进行样式构建的",
+            "g---------------------------------------------------.js": "构建文件输出到packages/theme-chalk/src/lib",
+            "cp-cli packages/theme-chalk/lib lib/theme-chalk": "构建结果拷贝到根目录lib下"
+          }
+        },
+        "pub": {
+          "作用": "发布....",
+          "npm run bootstrap": "安装依赖，注意的是vue是以peerDependencies的形式配置的，只是warning提示作用",
+          "sh build/git-release.sh": "sh:shell的意思，git checkout dev",
+          "sh build/release.sh": "发布新版本npm包",
+          "node build/bin/gen-indices.js": "利用algoliasearch进行搜索，需要把examples/docs/下的.md文件内容以一定格式上传给algolia",
+          "sh build/deploy-faas.sh": "git checkout dev",
+        },
+        "dev": {
+          "作用": "启动example",
+          "build:file": "上面有",
+          "cross-env NODE_ENV=development": "设置NODE_ENV=development",
+          "webpack-dev-server --config build/webpack.demo.js": "打包./examples/entry.js'文件，输出examples/element-ui",
+          "node build/bin/template.js": "监测./examples/pages/template是否发生变化"
+        },
+        "test": {
+          "作用": "通过karma测试工具和mocha, sinon-chai测试框架进行单元测试"
+        }
+      }
+    }
+  ],
+  "faas": [
+    {
+      "domain": "element",
+      "public": "temp_web/element"
+    },
+    {
+      "domain": "element-theme",
+      "public": "examples/element-ui",
+      "build": [
+        "yarn",
+        "npm run deploy:build"
+      ]
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ElemeFE/element.git"
+  },
+  "homepage": "http://element.eleme.io",
+  "keywords": [
+    "eleme",
+    "vue",
+    "components"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ElemeFE/element/issues"
+  },
+  "unpkg": "lib/index.js",
+  "style": "lib/theme-chalk/index.css",
+  "dependencies": {
+    "async-validator": "~1.8.1",
+    "babel-helper-vue-jsx-merge-props": "^2.0.0",
+    "deepmerge": "^1.2.0",
+    "normalize-wheel": "^1.0.1",
+    "resize-observer-polyfill": "^1.5.0",
+    "throttle-debounce": "^1.0.1"
+  },
+  "peerDependencies-Annotate": [
+    "https://blog.csdn.net/hujinyuan357/article/details/99621542",
+    "指定宿主版本，类似之前的珠海巡检的elementui版本的升级，宿主版本应该2.x，但引入了1.x版本页面整个卡住了"
+  ],
+  "peerDependencies": {
+    "vue": "^2.5.17"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.6.0",
+    "algoliasearch": "^3.24.5",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-istanbul": "^4.1.1",
+    "babel-plugin-module-resolver": "^2.2.0",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-vue-jsx": "^3.7.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-regenerator-runtime": "^6.5.0",
+    "chai": "^4.2.0",
+    "chokidar": "^1.7.0",
+    "copy-webpack-plugin": "^5.0.0",
+    "coveralls": "^3.0.3",
+    "cp-cli": "^1.0.2",
+    "cross-env": "^3.1.3",
+    "css-loader": "^2.1.0",
+    "es6-promise": "^4.0.5",
+    "eslint": "4.18.2",
+    "eslint-config-elemefe": "0.1.1",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-html": "^4.0.1",
+    "eslint-plugin-json": "^1.2.0",
+    "file-loader": "^1.1.11",
+    "file-save": "^0.2.0",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-cssmin": "^0.2.0",
+    "gulp-sass": "^4.0.2",
+    "highlight.js": "^9.3.0",
+    "html-webpack-plugin": "^3.2.0",
+    "json-loader": "^0.5.7",
+    "json-templater": "^1.0.4",
+    "karma": "^4.0.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.2",
+    "karma-mocha": "^1.3.0",
+    "karma-sinon-chai": "^2.0.2",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-webpack": "^3.0.5",
+    "markdown-it": "^8.4.1",
+    "markdown-it-anchor": "^5.0.2",
+    "markdown-it-chain": "^1.3.0",
+    "markdown-it-container": "^2.0.0",
+    "mini-css-extract-plugin": "^0.4.1",
+    "mocha": "^6.0.2",
+    "node-sass": "^4.11.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "postcss": "^7.0.14",
+    "progress-bar-webpack-plugin": "^1.11.0",
+    "rimraf": "^2.5.4",
+    "sass-loader": "^7.1.0",
+    "select-version-cli": "^0.0.2",
+    "sinon": "^7.2.7",
+    "sinon-chai": "^3.3.0",
+    "style-loader": "^0.23.1",
+    "transliteration": "^1.1.11",
+    "uglifyjs-webpack-plugin": "^2.1.1",
+    "uppercamelcase": "^1.1.0",
+    "url-loader": "^1.0.1",
+    "vue": "2.5.21",
+    "vue-loader": "^15.7.0",
+    "vue-router": "^3.0.1",
+    "vue-template-compiler": "2.5.21",
+    "vue-template-es2015-compiler": "^1.6.0",
+    "webpack": "^4.14.0",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.11",
+    "webpack-node-externals": "^1.7.2"
+  }
+}
