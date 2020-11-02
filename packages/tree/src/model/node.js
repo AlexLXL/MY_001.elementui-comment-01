@@ -2,6 +2,11 @@ import objectAssign from 'element-ui/src/utils/merge';
 import { markNodeData, NODE_KEY } from './util';
 import { arrayFindIndex } from 'element-ui/src/utils/util';
 
+/*
+*
+* this指实例对象
+* */
+
 export const getChildState = node => {
   let all = true;
   let none = true;
@@ -66,13 +71,13 @@ export default class Node {
   constructor(options) {
     this.id = nodeIdSeed++;
     this.text = null;
-    this.checked = false;
+    this.checked = false; // checked和indeterminate来设置选中状态
     this.indeterminate = false;
     this.data = null;
-    this.expanded = false;
-    this.parent = null;
+    this.expanded = false;  // expanded和visible来设置展开和可见状态
     this.visible = true;
-    this.isCurrent = false;
+    this.parent = null;
+    this.isCurrent = false; // isCurrent来设置是否是选中节点
 
     for (let name in options) {
       if (options.hasOwnProperty(name)) {
@@ -82,11 +87,12 @@ export default class Node {
 
     // internal
     this.level = 0;
-    this.loaded = false;
+    this.loaded = false;  // loading和loaded来设置加载状态
     this.childNodes = [];
     this.loading = false;
 
     if (this.parent) {
+      // ★ 2.通过level属性来设置不能节点的层级(this.parent是this.setData->this.insertChild里面插进去的)
       this.level = this.parent.level + 1;
     }
 
@@ -94,20 +100,25 @@ export default class Node {
     if (!store) {
       throw new Error('[Node]store is required!');
     }
+
+    // ★ 1.将node以{key: node}形式注册到store中的nodesMap对象
     store.registerNode(this);
 
     const props = store.props;
     if (props && typeof props.isLeaf !== 'undefined') {
       const isLeaf = getPropertyFromData(this, 'isLeaf');
       if (typeof isLeaf === 'boolean') {
+        // ★ 5.根据el-tree的props属性中的isLeaf，设置node的isLeafByUser属性；
         this.isLeafByUser = isLeaf;
       }
     }
 
     if (store.lazy !== true && this.data) {
+      // ★ 4.实例中通过data来保存原始的数据；(new TreeStore时候的data)
       this.setData(this.data);
 
       if (store.defaultExpandAll) {
+        // ★ 6.根据defaultExpandAll，设置节点expanded;
         this.expanded = true;
       }
     } else if (this.level > 0 && store.lazy && store.defaultExpandAll) {
@@ -135,6 +146,7 @@ export default class Node {
     this.updateLeafState();
   }
 
+  // 通过setData方法，遍历children，生成Node实例，插入到node的childNodes中；
   setData(data) {
     if (!Array.isArray(data)) {
       markNodeData(this, data);
@@ -229,6 +241,7 @@ export default class Node {
           }
         }
       }
+      // 往child插入parent，因为现在是要往一个Node插入Node，所以parent指向this
       objectAssign(child, {
         parent: this,
         store: this.store
@@ -236,9 +249,11 @@ export default class Node {
       child = new Node(child);
     }
 
+    // ★ 通过level属性来设置不能节点的层级
     child.level = this.level + 1;
 
     if (typeof index === 'undefined' || index < 0) {
+      // ★ 3.通过childNodes来保存子节点Node Class实例，而在对应的节点数据中是用children（也可以自定义）来保存子节点数据;
       this.childNodes.push(child);
     } else {
       this.childNodes.splice(index, 0, child);

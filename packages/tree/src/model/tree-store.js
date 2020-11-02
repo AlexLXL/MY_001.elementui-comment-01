@@ -14,11 +14,15 @@ export default class TreeStore {
 
     this.nodesMap = {};
 
+    // tree-store的实例store会根据节点数据初始化节点，生成node
     this.root = new Node({
       data: this.data,
-      store: this
+      store: this // 这个this指向了store的实例对象
     });
 
+    // 当设置了lazy懒加载，那么就不会遍历子节点数据进行初始化，
+    // 所以需要在tree-store的最后调用load回调，
+    // 遍历子节点数据进行初始化，递归地方式将所有节点初始化。
     if (this.lazy && this.load) {
       const loadFn = this.load;
       loadFn(this.root, (data) => {

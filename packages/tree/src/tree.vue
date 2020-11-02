@@ -322,6 +322,7 @@
     created() {
       this.isTree = true;
 
+      // 在elTreede 入口vue文件tree.vue中，会通过TreeStore Class生成store对象：
       this.store = new TreeStore({
         key: this.nodeKey,
         data: this.data,

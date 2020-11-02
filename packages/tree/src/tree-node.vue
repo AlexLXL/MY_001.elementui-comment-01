@@ -47,6 +47,7 @@
         v-if="node.loading"
         class="el-tree-node__loading-icon el-icon-loading">
       </span>
+      <!-- 除了默认方式，节点内容还支持jsx和slot两种 -->
       <node-content :node="node"></node-content>
     </div>
     <el-collapse-transition>
