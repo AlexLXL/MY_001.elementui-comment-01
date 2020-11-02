@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import merge from 'element-ui/src/utils/merge';
-import PopupManager from 'element-ui/src/utils/popup/popup-manager';  // 1.引入popupManger
+import PopupManager from 'element-ui/src/utils/popup/popup-manager';  // 引入popupManger
 import getScrollBarWidth from '../scrollbar-width';
 import { getStyle, addClass, removeClass, hasClass } from '../dom';
 
@@ -46,12 +46,12 @@ export default {
 
   beforeMount() {
     this._popupId = 'popup-' + idSeed++;
-    // 2.beforeMount 周期时，调用PopupManager对象的注册方法
+    // beforeMount 周期时，调用PopupManager对象的注册方法
     PopupManager.register(this._popupId, this);
   },
 
   beforeDestroy() {
-    // 4.beforeDestroy周期中，调用PopupManager对象的注销方法
+    // beforeDestroy周期中，调用PopupManager对象的注销方法
     PopupManager.deregister(this._popupId);
     PopupManager.closeModal(this._popupId);
 
@@ -69,7 +69,7 @@ export default {
   },
 
   watch: {
-    // 对于watch选项混入时，mixin内的和弹窗组件内的代码都会执行
+    // 1.对于watch选项混入时，mixin内的和弹窗组件内的代码都会执行
     // 主要方法就两个open和close
     visible(val) {
       if (val) {
@@ -135,7 +135,7 @@ export default {
           PopupManager.closeModal(this._popupId);
           this._closing = false;
         }
-        // 3.openModa方法，设置弹窗组件的z-index，调用PopupManager.openModal方法
+        // 2.openModa方法，设置弹窗组件的z-index，调用PopupManager.openModal方法产生蒙版并设置样式和层级等
         PopupManager.openModal(this._popupId, PopupManager.nextZIndex(), this.modalAppendToBody ? undefined : dom, props.modalClass, props.modalFade);
         if (props.lockScroll) {
           this.withoutHiddenClass = !hasClass(document.body, 'el-popup-parent--hidden');
@@ -149,6 +149,9 @@ export default {
           if (scrollBarWidth > 0 && (bodyHasOverflow || bodyOverflowY === 'scroll') && this.withoutHiddenClass) {
             document.body.style.paddingRight = this.computedBodyPaddingRight + scrollBarWidth + 'px';
           }
+          // 滚动事件无法冒泡
+          // 通过class el-popup-parent--hidden设置overflow:hidden，使得滚动条隐藏和失效，
+          // 同时设置body的padding Right += scrollBarWidth，这个是为了保证页面不至于因为竖向滚动条消失，而发生抖动。
           addClass(document.body, 'el-popup-parent--hidden');
         }
       }
@@ -156,7 +159,7 @@ export default {
       if (getComputedStyle(dom).position === 'static') {
         dom.style.position = 'absolute';
       }
-      // 设置组件的z-index，保证组件的层级在modalDom之上
+      // 设置遮罩上层组件的z-index，保证组件的层级在modalDom之上
       dom.style.zIndex = PopupManager.nextZIndex();
       this.opened = true;
       // 执行onopen回调函数
@@ -196,6 +199,7 @@ export default {
       this.onClose && this.onClose();
 
       if (this.lockScroll) {
+        // 恢复body样式，如重新显示滚动条、恢复body原有的paddingRight；
         setTimeout(this.restoreBodyStyle, 200);
       }
 
@@ -205,7 +209,7 @@ export default {
     },
 
     doAfterClose() {
-      // 关闭modal
+      // PopupManager.closeModal关闭蒙版(如果下层有蒙版则打开下层的蒙版)
       PopupManager.closeModal(this._popupId);
       this._closing = false;
     },

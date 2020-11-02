@@ -1,3 +1,7 @@
+/*
+* 设置蒙版，当有多级蒙版时，能在此进行统一管理
+* */
+
 import Vue from 'vue';
 import { addClass, removeClass } from 'element-ui/src/utils/dom';
 
@@ -10,8 +14,7 @@ let zIndex;
  * 第二次调用时直接返回PopupManager.modalDom
  */
 
-// modal --表示 黑色遮罩
-// dom -- 表示 黑色遮罩上面的白色内容区域
+// modalDom --表示 黑色遮罩
 const getModal = function() {
   if (Vue.prototype.$isServer) return;
   let modalDom = PopupManager.modalDom;

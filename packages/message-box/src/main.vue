@@ -102,20 +102,20 @@
       },
       lockScroll: {
         default: true
-      },
+      },    // 是否在 MessageBox 出现时将 body 滚动锁定
       showClose: {
         type: Boolean,
         default: true
       },    // 是否显示右上角关闭按钮
       closeOnClickModal: {
         default: true
-      },
+      },    // 是否可通过点击遮罩关闭 MessageBox
       closeOnPressEscape: {
         default: true
-      },
+      },    // 是否可通过按下 ESC 键关闭 MessageBox
       closeOnHashChange: {
         default: true
-      },
+      },    // 是否在 hashchange 时关闭 MessageBox
       center: {
         default: false,
         type: Boolean
@@ -123,7 +123,7 @@
       roundButton: {
         default: false,
         type: Boolean
-      }
+      }     // 是否使用圆角按钮
     },
 
     components: {
